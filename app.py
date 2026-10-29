@@ -240,6 +240,8 @@ def sayfa_yeni_bildirim() -> None:
         return
     if not aciklama.strip():
         st.error("Lütfen olay açıklamasını yaz.")
+    elif not any(ch.isalnum() for ch in aciklama):
+        st.error("Açıklama yalnızca boşluk veya noktalama işaretlerinden oluşamaz. Kısaca ne olduğunu yaz.")
     elif not onay:
         st.error("Lütfen onay kutusunu işaretle.")
     elif not anonim and (not ad.strip() or not soyad.strip()):
@@ -357,8 +359,17 @@ def _kayit_detayi(k: dict) -> None:
             st.warning(u)
         if k["maskelenen"]:
             st.caption(f"Açıklamada otomatik maskelenen bilgi türleri: {k['maskelenen']}")
-        st.caption(f"Algılayıcı sürümü: {k['analiz_surumu'] or 'v1 (eski kayıt)'}. Kural tabanlı eşleşme; kanıt veya "
-                   "karar değildir, bağlamı anlayamaz. Eşleşme olmaması da sorun olmadığı anlamına gelmez.")
+        # Basit kalite kontrolü: kayıt silmez; yalnızca incelemeciye dikkat notu verir.
+        aciklama_kontrol = (k.get("aciklama") or "").strip()
+        kelimeler = [parca for parca in aciklama_kontrol.split() if any(ch.isalnum() for ch in parca)]
+        yalniz_tekrar = len(aciklama_kontrol) >= 4 and len(set(aciklama_kontrol.lower().replace(" ", ""))) <= 2
+        if len(aciklama_kontrol) < 8 or len(kelimeler) < 2 or yalniz_tekrar:
+            st.warning("**Açıklama kalitesi kontrolü:** Metin çok kısa, yeterince açıklayıcı olmayabilir veya tekrar eden karakterler içeriyor. "
+                       "Bu bir spam/asılsız bildirim kanıtı değildir; otomatik silinmez, yetkili kişi bağlamı kontrol etmelidir.")
+        else:
+            st.info("**Açıklama kalitesi kontrolü:** Metin temel uzunluk kontrolünü geçti. Bu, bildirimin doğru olduğu anlamına gelmez.")
+        st.caption(f"Algılayıcı sürümü: {k['analiz_surumu'] or 'v1 (eski kayıt)'}. Bu sürüm gerçek bir yapay zekâ modeli değil, kural tabanlı sinyal ve basit metin kalite kontrolü kullanır. "
+                   "Sinyal kanıt veya karar değildir; bağlamı anlayamaz. Eşleşme olmaması da sorun olmadığı anlamına gelmez.")
 
 
 def _inceleme_formlari(k: dict) -> None:
@@ -700,7 +711,9 @@ secili_sayfa = ss["ana_menu"]
 with st.sidebar:
     logo_path = Path(__file__).with_name("bozuyuk_fen_lisesi_logo.png")
     if logo_path.exists():
-        st.image(str(logo_path), width=88)
+        logo_sol, logo_orta, logo_sag = st.columns([1, 2, 1])
+        with logo_orta:
+            st.image(str(logo_path), width=100)
     st.markdown("<div class='top-brand'><div><div class='top-brand-name'>Bozüyük Fen Lisesi"
                 "</div><div class='top-brand-sub'>Güvenli Okul · Bildirim ve takip</div></div></div>", unsafe_allow_html=True)
     for baslik, ogeler in NAV:

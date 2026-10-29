@@ -69,7 +69,8 @@ div[data-testid="stMetric"], div[data-testid="stForm"] { background:#fff; border
 [data-testid="stSidebar"] { background:#12263f; border-right:1px solid #0d1c30; }
 [data-testid="stSidebar"] * { color:#dbe6f3; }
 [data-testid="stSidebar"] .top-brand-name { color:#fff; font-size:1.05rem; line-height:1.35; }
-[data-testid="stSidebar"] [data-testid="stImage"] { margin:.1rem 0 .25rem; }
+[data-testid="stSidebar"] [data-testid="stImage"] { margin:.1rem auto .45rem; }
+[data-testid="stSidebar"] [data-testid="stImage"] img { display:block; margin-left:auto; margin-right:auto; }
 [data-testid="stSidebar"] .top-brand-sub { color:#8fa6c2; }
 [data-testid="stSidebar"] .brand-mark { background:#315f96; border:1px solid #4a78ad; }
 .nav-title { font-size:.66rem; font-weight:800; letter-spacing:.16em; color:#8fa6c2 !important; margin:1.1rem 0 .3rem; }
